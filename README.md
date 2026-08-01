@@ -1,10 +1,10 @@
-# 🤖 Intelligent AI Google Form Automator & Psychometric Survey Suite
+# Intelligent AI Google Form Automator & Psychometric Survey Suite
 
-A production-grade, advanced AI survey data synthesis and Google Form automation platform built with **Domain-Driven Design (DDD)**. Powered by **Ollama Cloud Models**, **Google Gemini**, or **OpenAI**, this platform integrates formal mathematical psychometrics, Gaussian Copulas, empirical benchmark rebalancing, and human diurnal temporal scheduling to generate survey datasets that are indistinguishably authentic and statistically verified.
+A production-grade, advanced AI survey data synthesis and Google Form automation platform built with Domain-Driven Design (DDD). Powered by Ollama Cloud Models, Google Gemini, or OpenAI, this platform integrates formal mathematical psychometrics, Gaussian Copulas, empirical benchmark rebalancing, and human diurnal temporal scheduling to generate survey datasets that are indistinguishably authentic and statistically verified.
 
 ---
 
-## 🏛️ End-to-End System Architecture
+## End-to-End System Architecture
 
 The suite operates as a decoupled simulation pipeline: web automation discovers the live target form structure, mathematical psychometrics and empirical benchmarks synthesize correlated responses without LLM statistical hallucinations, and automated worker swarms execute submissions across believable all-day timelines.
 
@@ -59,7 +59,7 @@ graph TD
 
 ---
 
-## 🔍 Exact Operational Workflow & Technical Breakdown
+## Exact Operational Workflow & Technical Breakdown
 
 ### Phase 1: Live DOM Inspection & Dynamic Schema Extraction (`src/automation/schema_extractor.py`)
 Instead of relying on fragile hardcoded screen coordinates or static XPaths, the suite deploys an interactive Playwright browser engine to scan the live Google Form Document Object Model (DOM):
@@ -111,13 +111,13 @@ To prevent datasets from displaying recognizable, artificial naming repetitive u
 | **Alphanumeric Privacy Tag** | 15% | `anon6411733@gmail.com`, `usr_89412@rediffmail.com` | Disposable-style identifiers used by privacy-conscious respondents. |
 | **Institutional Domain** | 15% | `pranav.b2024@vitstudent.ac.in`, `hritik.dyal@cognizant.com` | Academic universities and corporate workplace domains. |
 
-*Note: All generated handles and names undergo real-time lookup queries against the SQLite database ledger (`submissions_history.db`) to ensure **zero duplicates** exist across multi-thousand submission runs.*
+*Note: All generated handles and names undergo real-time lookup queries against the SQLite database ledger (`submissions_history.db`) to ensure zero duplicates exist across multi-thousand submission runs.*
 
 ---
 
 ### Phase 5: Deterministic Quota Rebalancing & Anomaly Injection (`src/statistical/rebalancer.py`)
 When generating smaller survey samples (e.g. $N=10$ or $N=50$), unguided probability sampling naturally produces statistical drift. To enforce exact empirical benchmarks (like Stack Overflow 2024 Developer Survey percentages):
-1. **Hare-Niemann Largest Remainder Algorithm**: Decouples conversational LLM text generation from mathematical distributions. It computes exact integer allocation targets for choices, reassigning marginal entries until the **Total Variation Distance (TVD)** converges to zero:
+1. **Hare-Niemann Largest Remainder Algorithm**: Decouples conversational LLM text generation from mathematical distributions. It computes exact integer allocation targets for choices, reassigning marginal entries until the Total Variation Distance (TVD) converges to zero:
    $$\text{TVD}(P, Q) = \frac{1}{2} \sum_{i} |p_i - q_i| \approx 0.000$$
 2. **Human Anomaly Injection (`noise_injector.py`)**: Perfect surveys raise flags during forensic audits. Our noise engine deliberately introduces controlled real-world survey imperfections:
    - **Speed-Runners**: A configurable percentage (default ~5%) of respondents speed-line rating scales (choosing all 3s or all 5s without reading).
@@ -156,7 +156,7 @@ gantt
 
 ---
 
-## 🚀 Setup & Execution Instructions
+## Setup & Execution Instructions
 
 ### 1. Installation
 Ensure Python 3.10+ is installed, then install dependencies and Chromium browser engines:
@@ -179,9 +179,9 @@ Launch the visual control center:
 ```bash
 streamlit run app.py
 ```
-- **Tab 1: Campaign Runner & Live Telemetry**: Execute instant batch campaigns with live DOM action logging.
-- **Tab 2: Pre-Flight Customizer & All-Day Scheduler**: Inspect form options live, alter distribution target percentage sliders, and enqueue multi-hour diurnal campaigns into SQLite.
-- **Tab 3: Analytics & Mathematical Distributions**: Audit real-time histograms, examine email domain diversity metrics, and download clean CSV datasets.
+- **Tab 1 (Campaign Runner & Live Telemetry)**: Execute instant batch campaigns with live DOM action logging.
+- **Tab 2 (Pre-Flight Customizer & All-Day Scheduler)**: Inspect form options live, alter distribution target percentage sliders, and enqueue multi-hour diurnal campaigns into SQLite.
+- **Tab 3 (Analytics & Mathematical Distributions)**: Audit real-time histograms, examine email domain diversity metrics, and download clean CSV datasets.
 
 #### Method B: Standalone Terminal CLI & Scripts
 ```bash
@@ -194,7 +194,7 @@ python -m src.cli run --url "https://docs.google.com/forms/d/e/YOUR_FORM_ID/view
 
 ---
 
-## 🧪 Testing & Audit Verification
+## Testing & Audit Verification
 Execute the full automated regression testing suite covering domain serialization, Gaussian Copula boundaries, email uniqueness, diurnal timestamp sorting, and database persistence:
 ```bash
 python -m pytest -v tests/
