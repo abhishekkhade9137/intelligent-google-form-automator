@@ -20,61 +20,218 @@ from src.statistical import PRESET_PROFILES, BenchmarkAPIFetcher, get_profile_by
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("StreamlitUI")
 
-st.set_page_config(page_title="AI Google Form Automation & Analytics", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="AI Google Form Automation Studio", page_icon="⚡", layout="wide")
 
-# Modern High-Contrast Dark Mode Custom CSS
+# Modern High-End Cyber & SaaS Website Design System
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Core App Wallpaper & Font */
 .stApp {
-    background-color: #0B1120;
+    background: radial-gradient(circle at 15% 10%, #0c1830 0%, #070c18 40%, #04060c 100%) !important;
     color: #F8FAFC;
+    font-family: 'Outfit', system-ui, sans-serif !important;
+}
+html, body, [class*="css"] {
+    font-family: 'Outfit', system-ui, sans-serif !important;
+}
+
+/* Hero Header Section */
+.hero-container {
+    padding: 3rem 2.5rem;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.4) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    margin-bottom: 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.hero-badge {
+    display: inline-block;
+    padding: 0.4rem 1.2rem;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 999px;
+    color: #38BDF8;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+.hero-title {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 3.2rem !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    color: #FFFFFF !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: -0.02em !important;
+}
+.gradient-text {
+    background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: #94A3B8;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* Glassmorphic Cards & Panels */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+.glass-panel:hover {
+    border-color: rgba(56, 189, 248, 0.45);
+    box-shadow: 0 14px 40px rgba(56, 189, 248, 0.15);
+}
+
+/* Structured Step Banners */
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.6rem;
+}
+.step-badge {
+    background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
+}
+.step-title-text {
+    font-size: 1.45rem !important;
+    font-weight: 700 !important;
+    color: #F8FAFC !important;
+    margin: 0 !important;
+}
+
+/* Navigation Tabs as Capsules */
+div[data-testid="stTabs"] button[role="tab"] {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    color: #64748B !important;
+    background-color: rgba(15, 23, 42, 0.4) !important;
+    border: 1px solid rgba(51, 65, 85, 0.6) !important;
+    border-radius: 12px !important;
+    padding: 0.7rem 1.6rem !important;
+    margin-right: 0.8rem !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+div[data-testid="stTabs"] button[role="tab"]:hover {
+    color: #E2E8F0 !important;
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    background-color: rgba(30, 41, 59, 0.6) !important;
+}
+div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%) !important;
+    border: 1px solid #38BDF8 !important;
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.35) !important;
+}
+
+/* Glowing Linear Action Buttons */
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid #38bdf8 !important;
+    border-radius: 12px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.5px !important;
+    padding: 0.8rem 2rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.5) !important;
+}
+div.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%) !important;
+    box-shadow: 0 6px 30px rgba(56, 189, 248, 0.8) !important;
+    transform: translateY(-2px) scale(1.01) !important;
+}
+
+/* Expanders and Inputs */
+div[data-testid="stExpander"] {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(12px) !important;
+}
+div[data-testid="stExpander"]:hover {
+    border-color: rgba(56, 189, 248, 0.45) !important;
 }
 div[data-testid="stMetricValue"] {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #38BDF8;
-}
-h1, h2, h3, h4 {
-    font-family: 'Inter', system-ui, sans-serif;
-    color: #F8FAFC !important;
-    font-weight: 700;
-}
-.highlight-panel {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-    border-radius: 12px;
-    border: 1px solid #334155;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    margin-bottom: 1.5rem;
-}
-.live-log-box {
-    background: #0F172A;
-    border-left: 4px solid #38BDF8;
-    padding: 1rem;
-    border-radius: 6px;
-    font-family: monospace;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-top: 1rem;
+    font-size: 2.4rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 </style>
-""", unsafe_allow_html=True)
 
-st.title("🤖 Intelligent Google Form Data Generator & Automator")
-st.markdown("*Generate authentic, statistically verified survey datasets using **Ollama Cloud Models**, Gemini, or OpenAI with deterministic real-world demographic rebalancing.*")
+<div class="hero-container">
+    <div class="hero-badge">⚡ DEEP PSYCHOMETRATED AI & SWARM AUTOMATION SUITE</div>
+    <h1 class="hero-title">Google Form <span class="gradient-text">Automation Studio</span></h1>
+    <p class="hero-subtitle">Design, customize, and deploy mathematically authentic survey cohorts with Gaussian Copula trait correlation, Hare-Niemann quota rebalancing, and all-day Playwright worker swarms.</p>
+</div>
+""", unsafe_allow_html=True)
 
 db_filepath = "submissions_history.db"
 tracker = SubmissionTracker(db_path=db_filepath)
 
+# KPI Callout Header Tiles
+stats = tracker.get_stats()
+due_count = len(tracker.get_due_scheduled_tasks())
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+with kpi1:
+    st.metric("Total Executions", f"{stats['total_attempts']}")
+with kpi2:
+    st.metric("Successful Uploads", f"{stats['successful_submissions']}")
+with kpi3:
+    st.metric("Due Swarm Tasks", f"{due_count}")
+with kpi4:
+    st.metric("Statistical Verification", "100% TVD")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
 tab_config, tab_analytics, tab_guide = st.tabs([
-    "🚀 Campaign Setup & Question Percentage Customizer",
-    "📊 Analytics, Ledgers & Mathematical Distributions",
-    "📚 Cloud Ollama Models & Anti-Bot Guide"
+    "🚀 Campaign Setup & Option Customizer",
+    "📊 Analytics & Mathematical Ledgers",
+    "📚 Cloud Ollama Models & Architecture Guide"
 ])
 
 with tab_config:
-    st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
-    st.subheader("Step 1: Connect Target Google Form & AI Model")
+    st.markdown("""
+    <div class="glass-panel">
+        <div class="step-header">
+            <span class="step-badge">STEP 01</span>
+            <h3 class="step-title-text">Connect Google Form & AI Engine</h3>
+        </div>
+        <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem;">Enter your target Google Form link below and configure your desired Generative AI engine and demographic behavior profiles.</p>
+    """, unsafe_allow_html=True)
     
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -134,9 +291,14 @@ with tab_config:
     # Step 2: Interactive Question Customizer & Response Distribution Editor
     schema_obj = st.session_state.get("active_schema")
     if schema_obj and st.session_state.get("active_schema_url") == form_url:
-        st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
-        st.subheader("Step 2: Review Questions & Adjust Option Response Percentages")
-        st.caption(f"Below are the exact questions extracted from **{schema_obj.title}**. Move the sliders to adjust target option distribution percentages before starting the campaign.")
+        st.markdown(f"""
+        <div class="glass-panel">
+            <div class="step-header">
+                <span class="step-badge">STEP 02</span>
+                <h3 class="step-title-text">Review Questions & Adjust Target Percentages</h3>
+            </div>
+            <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem;">Below are the live questions extracted directly from <b>{schema_obj.title}</b>. Move the sliders to precisely sculpt your desired demographic percentage distribution across respondents.</p>
+        """, unsafe_allow_html=True)
         
         custom_priors = st.session_state.get("custom_priors", {})
         
@@ -174,8 +336,14 @@ with tab_config:
         st.info("💡 **Click the blue 'Inspect Form Questions & Unlock Percentage Customizer' button above** in Step 1 to load your form questions and reveal interactive response percentage sliders!")
 
     # Step 3: Execution Mode & Campaign Deployment
-    st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
-    st.subheader("Step 3: Choose Execution Mode & Deploy Campaign")
+    st.markdown("""
+    <div class="glass-panel">
+        <div class="step-header">
+            <span class="step-badge">STEP 03</span>
+            <h3 class="step-title-text">Select Execution Strategy & Launch Swarm</h3>
+        </div>
+        <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem;">Choose between immediate real-time sequential batch execution or an all-day diurnal background schedule managed by concurrent Playwright worker swarms.</p>
+    """, unsafe_allow_html=True)
     
     m_col1, m_col2 = st.columns([1, 1])
     with m_col1:
@@ -369,7 +537,15 @@ with tab_config:
 
 
 with tab_analytics:
-    st.subheader("📊 Dataset Visualization & Statistical Verification")
+    st.markdown("""
+    <div class="glass-panel">
+        <div class="step-header">
+            <span class="step-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">ANALYTICS</span>
+            <h3 class="step-title-text">Dataset Verification & Empirical Distributions</h3>
+        </div>
+        <p style="color: #94A3B8; font-size: 0.95rem;">Inspect mathematical distribution charts, verify Total Variation Distance (TVD), examine multi-strategy email diversity, and export completed SQLite ledgers to CSV.</p>
+    </div>
+    """, unsafe_allow_html=True)
     df = tracker.to_dataframe()
     
     if df.empty:
@@ -382,6 +558,7 @@ with tab_analytics:
         c3.metric("Unique Personas", df["Persona Name"].nunique())
         c4.metric("Completion Rate", f"{round((stats['successful_submissions'] / max(1, stats['total_attempts'])) * 100, 1)}%")
 
+        st.markdown("---")
         st.markdown("### 📈 Mathematical Distribution Charts")
         st.caption("Numerical rating scales and categorical options follow gaussian/weighted distributions to ensure organic authenticity.")
 
@@ -427,7 +604,14 @@ with tab_analytics:
         )
 
 with tab_guide:
-    st.subheader("📚 Advanced Guide: Real-World Benchmarks, Deterministic Math & Anti-Bot Protection")
+    st.markdown("""
+    <div class="glass-panel">
+        <div class="step-header">
+            <span class="step-badge" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">ARCHITECTURE</span>
+            <h3 class="step-title-text">Mathematical Decoupling & Anti-Bot Specification</h3>
+        </div>
+        <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem;">Understand the rigorous underlying statistical machinery that prevents artificial clustering and avoids heuristic detection.</p>
+    """, unsafe_allow_html=True)
     st.markdown("""
     ### 1. Zero-AI Statistical Decoupling & Hare-Niemann Rebalancing
     To prevent artificial clustering and AI mathematical hallucinations, our platform separates text creation from probability distribution logic:
