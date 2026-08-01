@@ -1,0 +1,14 @@
+# Sample Configuration for Google Form Automation
+form:
+  url: "https://docs.google.com/forms/d/e/SAMPLE_ID/viewform"
+  context: "A customer feedback survey regarding a newly launched mobile fitness application."
+
+execution:
+  count: 10                   # Number of unique submissions to generate
+  headless: false             # Set to false to watch browser interaction live; true for background speed
+  delay_between_submissions: 2 # Seconds to wait between submissions
+
+ai:
+  provider: "gemini"          # Options: "gemini", "openai", "mock" (offline random generator)
+  model: "gemini-2.5-flash"   # Recommended model for high speed & structured reasoning
+  temperature: 0.8            # Higher temperature increases persona variety and uniqueness

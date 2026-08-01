@@ -1,0 +1,25 @@
+# Python cache and distribution
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.env
+.DS_Store
+
+# Virtual Environments & Browser Cache
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+chrome_session_profile/
+
+# Database ledgers, runtime audit logs, and generated datasets
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.log
