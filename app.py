@@ -66,25 +66,27 @@ st.markdown("*Generate authentic, statistically verified survey datasets using *
 db_filepath = "submissions_history.db"
 tracker = SubmissionTracker(db_path=db_filepath)
 
-tab_config, tab_customizer, tab_analytics, tab_guide = st.tabs([
-    "🚀 Campaign Runner & Live Telemetry",
-    "🎛️ Pre-Flight Customizer & All-Day Scheduler",
-    "📊 Analytics & Mathematical Distributions",
+tab_config, tab_analytics, tab_guide = st.tabs([
+    "🚀 Campaign Setup & Question Percentage Customizer",
+    "📊 Analytics, Ledgers & Mathematical Distributions",
     "📚 Cloud Ollama Models & Anti-Bot Guide"
 ])
 
 with tab_config:
     st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
-    st.subheader("1. Campaign & Model Setup")
+    st.subheader("Step 1: Connect Target Google Form & AI Model")
     
     col1, col2 = st.columns([2, 1])
     with col1:
-        form_url = st.text_input("Google Form URL (View Form Link):", placeholder="https://docs.google.com/forms/d/e/.../viewform")
+        form_url = st.text_input(
+            "Google Form URL (View Form Link):", 
+            value="https://docs.google.com/forms/d/e/1FAIpQLSfUeAS_Cm67OeAOQEF-9uB_E09aFC1eJS8vK2Gr8nblaOzCBw/viewform?usp=dialog",
+            help="Paste your Google Form URL here to load questions and adjust target response percentages."
+        )
         form_context = st.text_area("Survey Subject & Objectives:", value="A customer feedback survey regarding a newly released high-performance application.", help="Provides contextual vocabulary and industry domain background to the AI.")
         demographics_guidance = st.text_input("Demographics & Persona Guidance (Optional):", value="Names must be authentic Indian names. Respondents are engineers and university students in Hyderabad or Bangalore.", help="Shape your synthetic target audience's culture, age, and professional backgrounds.")
     
     with col2:
-        num_submissions = st.number_input("Target Submissions Count:", min_value=1, max_value=1000, value=10)
         provider = st.selectbox("AI Engine Provider:", ["Ollama (Local & Cloud Models)", "Google Gemini", "OpenAI"])
         
         if provider.startswith("Ollama"):
@@ -110,146 +112,213 @@ with tab_config:
 
         headless_mode = st.checkbox("Headless Browser Mode (Background Run)", value=False, help="Unchecked opens Chrome visibly so you can monitor actions or perform a one-time manual sign-in if prompted.")
         delay_range = st.slider("Random Pause Between Submissions (Seconds):", min_value=0, max_value=60, value=(2, 6))
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Section 2: Demographic Benchmarks, Rebalancing & Noise Settings
-    st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
-    st.subheader("2. Demographic Benchmark API & Statistical Rebalancing")
-    st.caption("Decouple AI text generation from statistical frequency math. Enforce exact real-world demographic percentages and human survey anomalies.")
-    
-    b_col1, b_col2 = st.columns([2, 1])
-    with b_col1:
-        benchmark_options = [
-            "Stack Overflow 2024 Developer Survey (Empirical Baseline)",
-            "Indian University Engineering Demographics",
-            "Global Tech Consumer Sentiment Baseline",
-            "Custom External REST API Endpoint",
-            "No Benchmark (Default Uniform / Heuristics)"
-        ]
-        selected_b_option = st.selectbox("Select Target Population Benchmark:", benchmark_options, index=0)
-        
-        custom_api_url = ""
-        if "Custom External REST API" in selected_b_option:
-            custom_api_url = st.text_input("External Benchmark API URL (JSON):", placeholder="https://api.example.com/demographics/v1/weights")
-
-    with b_col2:
-        enable_rebalancing = st.checkbox("✅ Enable Deterministic Hare-Niemann Quota Rebalancing", value=True, help="Mathematically adjusts categorical choices and scale ratings across the batch to eliminate small-sample noise and perfectly match target percentages.")
-        enable_noise = st.checkbox("✅ Inject Authentic Human Survey Noise", value=True, help="Simulates real-world survey behavior such as speed-running ratings or ultra-short replies ('N/A', 'none', 'ok').")
-        noise_factor = st.slider("Survey Noise Coefficient (%):", min_value=0, max_value=25, value=7, help="Percentage of total responses that will exhibit intentional survey fatigue or brevity.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    if st.button("▶️ Launch Automated Data Campaign", type="primary", width="stretch"):
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🔍 Inspect Form Questions & Unlock Percentage Customizer", type="primary", width="stretch"):
         if not form_url or "docs.google.com/forms" not in form_url:
             st.error("⚠️ Please provide a valid Google Forms URL starting with 'https://docs.google.com/forms/...'")
         else:
-            st.markdown("### 📡 Live Execution Telemetry & Error Monitor")
-            progress_bar = st.progress(0)
-            
-            col_status, col_error = st.columns([1, 1])
-            with col_status:
-                status_box = st.empty()
-            with col_error:
-                error_container = st.container()
-                
-            log_container = st.expander("📝 Real-time Step Activity Log (Click to view exact DOM actions)", expanded=True)
-            log_messages = []
-            
-            def ui_status_update(msg: str):
-                logger.info(msg)
-                status_box.markdown(f"**⚡ Current Action:** {msg}")
-                log_messages.append(f"• {msg}")
-                with log_container:
-                    st.markdown(f"{msg}")
-                    
-            def ui_error_report(err: str):
-                logger.error(err)
-                with col_error:
-                    st.warning(err)
-                log_messages.append(f"⚠️ ERROR: {err}")
-                with log_container:
-                    st.markdown(f"**{err}**")
-
-            provider_clean = "ollama" if "Ollama" in provider else ("gemini" if "Gemini" in provider else "openai")
-            generator = AIGenerationEngine(
-                provider=provider_clean,
-                model_name=model_name,
-                api_key=api_key if api_key.strip() else None,
-                status_callback=ui_status_update,
-                error_callback=ui_error_report
-            )
-            
-            # Adjust noise injector rate based on slider
-            generator.noise_injector.straight_liner_rate = round(noise_factor / 200.0, 3)
-            generator.noise_injector.low_effort_text_rate = round(noise_factor / 100.0, 3)
-
-            # Resolve benchmark profile
-            active_profile = None
-            if "Stack Overflow" in selected_b_option:
-                active_profile = PRESET_PROFILES.get("so_2024_devs")
-            elif "Indian University" in selected_b_option:
-                active_profile = PRESET_PROFILES.get("in_univ_eng")
-            elif "Global Tech" in selected_b_option:
-                active_profile = PRESET_PROFILES.get("global_sentiment")
-            elif "Custom External" in selected_b_option and custom_api_url.strip():
-                ui_status_update(f"🌐 Fetching external benchmark statistics from API: {custom_api_url}...")
-                active_profile = BenchmarkAPIFetcher.fetch_from_url(custom_api_url.strip())
-
-            table_container = st.empty()
-            
-            with st.spinner(f"Running automated data sequence via '{model_name}'..."):
+            with st.spinner("Connecting headless Playwright engine & extracting live form questions..."):
                 try:
-                    with BrowserEngine(headless=headless_mode) as browser:
-                        ui_status_update("🌐 Launching hardened anti-bot Chrome browser & inspecting Google Form DOM...")
-                        browser.navigate_and_check_auth(form_url, pause_on_login=not headless_mode)
-                        
-                        extractor = FormExtractor(browser.page)
-                        schema = extractor.extract_schema(form_url)
-                        ui_status_update(f"✅ Discovered form: **'{schema.title}'** ({len(schema.all_questions)} fields on page 1).")
-                        
-                        # Pre-compute and rebalance batch in memory
-                        ui_status_update(f"⚡ Generating & verifying batch of {num_submissions} responses against demographic baseline...")
-                        batch_results = generator.generate_batch_campaign(
-                            schema=schema,
-                            count=num_submissions,
-                            context=form_context,
-                            demographic_guidance=demographics_guidance,
-                            benchmark_profile=active_profile,
-                            apply_noise=enable_noise,
-                            apply_rebalancing=enable_rebalancing
+                    with BrowserEngine(headless=True) as browser:
+                        browser.navigate_and_check_auth(form_url, pause_on_login=False)
+                        ext = FormExtractor(browser.page)
+                        schema = ext.extract_schema(form_url)
+                        st.session_state["active_schema"] = schema
+                        st.session_state["active_schema_url"] = form_url
+                        st.success(f"✅ Loaded Form Structure: **'{schema.title}'** ({len(schema.all_questions)} questions discovered). Step 2 unlocked below!")
+                except Exception as ex:
+                    st.error(f"❌ Failed to inspect form DOM: {str(ex)}")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Step 2: Interactive Question Customizer & Response Distribution Editor
+    schema_obj = st.session_state.get("active_schema")
+    if schema_obj and st.session_state.get("active_schema_url") == form_url:
+        st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
+        st.subheader("Step 2: Review Questions & Adjust Option Response Percentages")
+        st.caption(f"Below are the exact questions extracted from **{schema_obj.title}**. Move the sliders to adjust target option distribution percentages before starting the campaign.")
+        
+        custom_priors = st.session_state.get("custom_priors", {})
+        
+        for idx, q in enumerate(schema_obj.all_questions):
+            q_title_display = f"📌 Q{idx+1}: **{q.title}** (`{q.question_type.value}`)"
+            if q.required:
+                q_title_display += " 🔴 *Required*"
+            
+            if q.options and q.question_type in [QuestionType.MULTIPLE_CHOICE, QuestionType.CHECKBOXES, QuestionType.DROPDOWN]:
+                with st.expander(f"{q_title_display} — 🎛️ Click to adjust percentage distribution", expanded=True):
+                    st.markdown("*Set desired response percentage target for each choice below:*")
+                    if q.id not in custom_priors or not isinstance(custom_priors.get(q.id), dict):
+                        custom_priors[q.id] = {opt: int(100 / len(q.options)) for opt in q.options}
+                    
+                    o_cols = st.columns(min(3, len(q.options)))
+                    for o_idx, opt in enumerate(q.options):
+                        col = o_cols[o_idx % min(3, len(q.options))]
+                        with col:
+                            curr_val = custom_priors[q.id].get(opt, 25)
+                            new_val = st.slider(
+                                f"`{opt[:30]}...` (%)" if len(opt) > 30 else f"`{opt}` (%)", 
+                                min_value=0, max_value=100, value=curr_val, key=f"cust_sld_{q.id}_{o_idx}"
+                            )
+                            custom_priors[q.id][opt] = new_val
+            elif q.question_type == QuestionType.LINEAR_SCALE:
+                with st.expander(f"{q_title_display} — 🔢 Numeric Scale ({q.scale_min} to {q.scale_max})", expanded=False):
+                    st.info(f"💡 Linear scale ratings will be generated via Gaussian Copula & normal bell-curve modeling around empirical benchmarks between {q.scale_min} and {q.scale_max}.")
+            else:
+                with st.expander(f"{q_title_display} — ✍️ AI Natural Text Field", expanded=False):
+                    st.info("💡 Realistic natural language answers and multi-strategy emails will be generated using the selected AI engine matching the respondent's persona.")
+                    
+        st.session_state["custom_priors"] = custom_priors
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.info("💡 **Click the blue 'Inspect Form Questions & Unlock Percentage Customizer' button above** in Step 1 to load your form questions and reveal interactive response percentage sliders!")
+
+    # Step 3: Execution Mode & Campaign Deployment
+    st.markdown('<div class="highlight-panel">', unsafe_allow_html=True)
+    st.subheader("Step 3: Choose Execution Mode & Deploy Campaign")
+    
+    m_col1, m_col2 = st.columns([1, 1])
+    with m_col1:
+        num_submissions = st.number_input("Target Submissions Count:", min_value=1, max_value=1000, value=15)
+        execution_mode = st.radio(
+            "Select Campaign Delivery Mode:",
+            ["⚡ Immediate Real-Time Batch Fill", "🕒 All-Day Diurnal Scheduled Swarm"],
+            help="Immediate Fill launches sequentially right now. Scheduled Swarm stores tasks in SQLite queue to run across believable natural day/night human timelines."
+        )
+    with m_col2:
+        if "Scheduled Swarm" in execution_mode:
+            sched_hours = st.slider("Campaign Time Horizon (Hours):", min_value=0.5, max_value=72.0, value=24.0, help="Spread automated responses over believable diurnal intervals.")
+            apply_diurnal = st.checkbox("🌅 Apply Human Diurnal Activity Curves (Lunch & Evening Spikes)", value=True)
+            max_swarm = st.slider("Worker Swarm Concurrency (Parallel Chrome Browser Threads):", min_value=1, max_value=5, value=3)
+        else:
+            enable_rebalancing = st.checkbox("✅ Apply Deterministic Hare-Niemann Quota Rebalancing", value=True)
+            enable_noise = st.checkbox("✅ Inject Human Survey Noise & Anomaly Shorthand", value=True)
+            noise_factor = st.slider("Survey Anomaly Rate (%):", min_value=0, max_value=25, value=5)
+
+    if st.button("▶️ Launch Data Generation & Automation Campaign", type="primary", width="stretch"):
+        if not schema_obj or st.session_state.get("active_schema_url") != form_url:
+            with st.spinner("Auto-inspecting form schema before starting campaign..."):
+                with BrowserEngine(headless=True) as browser:
+                    browser.navigate_and_check_auth(form_url, pause_on_login=False)
+                    ext = FormExtractor(browser.page)
+                    schema_obj = ext.extract_schema(form_url)
+                    st.session_state["active_schema"] = schema_obj
+                    st.session_state["active_schema_url"] = form_url
+        
+        st.markdown("### 📡 Live Execution Telemetry & Error Monitor")
+        progress_bar = st.progress(0)
+        
+        col_status, col_error = st.columns([1, 1])
+        with col_status:
+            status_box = st.empty()
+        with col_error:
+            error_container = st.container()
+            
+        log_container = st.expander("📝 Real-time Step Activity Log (Click to view exact DOM actions)", expanded=True)
+        log_messages = []
+        
+        def ui_status_update(msg: str):
+            logger.info(msg)
+            status_box.markdown(f"**⚡ Current Action:** {msg}")
+            log_messages.append(f"• {msg}")
+            with log_container:
+                st.markdown(f"{msg}")
+                
+        def ui_error_report(err: str):
+            logger.error(err)
+            with col_error:
+                st.warning(err)
+            log_messages.append(f"⚠️ ERROR: {err}")
+            with log_container:
+                st.markdown(f"**{err}**")
+
+        provider_clean = "ollama" if "Ollama" in provider else ("gemini" if "Gemini" in provider else "openai")
+        generator = AIGenerationEngine(
+            provider=provider_clean,
+            model_name=model_name,
+            api_key=api_key if api_key.strip() else None,
+            status_callback=ui_status_update,
+            error_callback=ui_error_report
+        )
+        
+        with st.spinner(f"Synthesizing & mathematically verifying {num_submissions} responses..."):
+            try:
+                batch_results = generator.generate_batch_campaign(
+                    schema=schema_obj,
+                    count=num_submissions,
+                    context=form_context,
+                    demographic_guidance=demographics_guidance,
+                    apply_noise=enable_noise if "Immediate" in execution_mode else True,
+                    apply_rebalancing=enable_rebalancing if "Immediate" in execution_mode else False
+                )
+                
+                custom_priors = st.session_state.get("custom_priors", {})
+                if custom_priors:
+                    ui_status_update("⚖️ Enforcing customized user response percentage distributions across generated batch...")
+                    for q_id, p_dict in custom_priors.items():
+                        if isinstance(p_dict, dict) and sum(p_dict.values()) > 0:
+                            opts = list(p_dict.keys())
+                            weights = [float(p_dict[o]) for o in opts]
+                            for ans_set in batch_results:
+                                for ans_item in ans_set.answers:
+                                    if ans_item.question_id == q_id or ans_item.question_title == q_id:
+                                        ans_item.value = random.choices(opts, weights=weights, k=1)[0]
+
+                with st.expander("⚖️ Verified Dataset Preview & Customized Distribution Breakdown", expanded=True):
+                    preview_rows = []
+                    for idx, ans_set in enumerate(batch_results):
+                        email_val = "N/A"
+                        for item in ans_set.answers:
+                            if any(k in item.question_title.lower() for k in ["email", "mail", "e-mail"]):
+                                email_val = str(item.value)
+                        preview_rows.append({
+                            "Entry #": idx + 1,
+                            "Respondent": ans_set.persona.name,
+                            "Age": ans_set.persona.age,
+                            "Profession": ans_set.persona.occupation,
+                            "Multi-Strategy Email": email_val,
+                            "Total Fields": len(ans_set.answers)
+                        })
+                    st.dataframe(pd.DataFrame(preview_rows), width="stretch")
+
+                if "Scheduled Swarm" in execution_mode:
+                    ui_status_update(f"🕒 Generating believable diurnal timestamps across a {sched_hours}-hour window...")
+                    timestamps = DiurnalTimestampGenerator.generate_schedule(
+                        count=num_submissions,
+                        duration_hours=sched_hours,
+                        apply_diurnal_curve=apply_diurnal
+                    )
+                    
+                    tasks_to_queue = []
+                    for idx, ans_set in enumerate(batch_results):
+                        t_task = ScheduledSubmissionTask(
+                            form_url=form_url,
+                            scheduled_timestamp=timestamps[idx].isoformat(),
+                            answer_set_json=ans_set.model_dump_json(),
+                            status=ScheduleStatus.PENDING
                         )
-                        
-                        ui_status_update("✅ Statistical verification passed! Displaying pre-flight preview & starting DOM upload...")
-                        
-                        # Display Pre-flight Preview of rebalanced dataset
-                        with st.expander("⚖️ Pre-Flight Verified Dataset & Email Diversity Preview", expanded=True):
-                            preview_rows = []
-                            for idx, ans_set in enumerate(batch_results):
-                                email_val = "N/A"
-                                for item in ans_set.answers:
-                                    if any(k in item.question_title.lower() for k in ["email", "mail", "e-mail"]):
-                                        email_val = str(item.value)
-                                preview_rows.append({
-                                    "Entry #": idx + 1,
-                                    "Respondent": ans_set.persona.name,
-                                    "Age": ans_set.persona.age,
-                                    "Profession": ans_set.persona.occupation,
-                                    "Multi-Strategy Email": email_val,
-                                    "Total Answered Fields": len(ans_set.answers)
-                                })
-                            st.dataframe(pd.DataFrame(preview_rows), width="stretch")
-
+                        tasks_to_queue.append(t_task)
+                    
+                    tracker.enqueue_scheduled_tasks(tasks_to_queue)
+                    ui_status_update(f"🎉 Successfully scheduled {num_submissions} automated responses into persistent SQLite job queue!")
+                    st.balloons()
+                else:
+                    with BrowserEngine(headless=headless_mode) as browser:
+                        ui_status_update("🌐 Launching Playwright browser instance for live sequential form completion...")
+                        browser.navigate_and_check_auth(form_url, pause_on_login=False)
                         filler = FormFillerEngine(browser, status_callback=ui_status_update, error_callback=ui_error_report)
+                        table_container = st.empty()
                         session_logs = []
-
+                        
                         for i, answer_set in enumerate(batch_results):
                             persona = answer_set.persona
                             ui_status_update(f"⏳ **Uploading Entry #{i+1} of {num_submissions}:** `{persona.name}` ({persona.age}yo {persona.occupation})...")
 
                             if i > 0:
-                                ui_status_update(f"🌐 Reloading fresh Google Form instance for Attempt #{i+1}...")
+                                ui_status_update(f"🌐 Reloading Google Form instance for Attempt #{i+1}...")
                                 browser.page.goto(form_url, wait_until="domcontentloaded")
                                 
-                            success, msg = filler.fill_and_submit(schema, answer_set)
+                            success, msg = filler.fill_and_submit(schema_obj, answer_set)
                             tracker.add_record(form_url, answer_set, success=success, error_message=None if success else msg)
                             
                             session_logs.append({
@@ -257,148 +326,46 @@ with tab_config:
                                 "Respondent Name": persona.name,
                                 "Age": persona.age,
                                 "Profession": persona.occupation,
-                                "Sentiment": persona.sentiment,
                                 "Outcome": "✅ SUCCESS" if success else f"❌ FAILED ({msg})"
                             })
-                            
                             table_container.dataframe(pd.DataFrame(session_logs), width="stretch")
                             progress_bar.progress((i + 1) / num_submissions)
                             
                             if i < num_submissions - 1:
                                 pause = random.randint(delay_range[0], delay_range[1])
-                                ui_status_update(f"⏸️ **Resting {pause} seconds** to replicate normal human survey intervals...")
+                                ui_status_update(f"⏸️ **Resting {pause}s** between submissions...")
                                 time.sleep(pause)
 
-                        ui_status_update("🎉 **Campaign Fully Complete!** All responses saved directly into database ledger.")
+                        ui_status_update("🎉 **Campaign Fully Complete!** All responses saved directly into SQLite database ledger.")
                         st.balloons()
-                except Exception as e:
-                    logger.error(f"Execution Error: {str(e)}")
-                    ui_error_report(f"❌ Execution Failure: {str(e)}")
-
-
-with tab_customizer:
-    st.subheader("🎛️ Interactive Option Percentage Customizer & All-Day Scheduler")
-    st.markdown("Inspect live Google Forms to customize exact response percentages, correlate traits via Gaussian Copulas, and schedule automated background submissions across believable multi-hour activity spans.")
-    
-    c_col1, c_col2 = st.columns([2, 1])
-    with c_col1:
-        custom_url = st.text_input("Target Google Form URL:", value="https://docs.google.com/forms/d/e/1FAIpQLSfUeAS_Cm67OeAOQEF-9uB_E09aFC1eJS8vK2Gr8nblaOzCBw/viewform?usp=dialog", key="cust_url")
-    with c_col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔍 Inspect Schema & Load Questions", type="primary", width="stretch"):
-            with st.spinner("Extracting live form questions via headless Chrome..."):
-                with BrowserEngine(headless=True) as browser:
-                    browser.navigate_and_check_auth(custom_url, pause_on_login=False)
-                    ext = FormExtractor(browser.page)
-                    st.session_state["cust_schema"] = ext.extract_schema(custom_url)
-                    st.success("✅ Form schema loaded! Set option percentages below.")
-    
-    schema_obj = st.session_state.get("cust_schema")
-    if schema_obj:
-        st.markdown(f"### 📋 Discovered Form: **{schema_obj.title}** ({len(schema_obj.all_questions)} total items)")
-        
-        st.markdown("#### 1. Customize Target Response Distributions (%)")
-        st.caption("Adjust percentages for categorical multiple-choice and checkbox options below. The total will be normalized automatically during generation.")
-        
-        custom_priors = st.session_state.get("custom_priors", {})
-        
-        for q in schema_obj.all_questions:
-            if q.options and q.question_type in [QuestionType.MULTIPLE_CHOICE, QuestionType.CHECKBOXES, QuestionType.DROPDOWN]:
-                with st.expander(f"📌 {q.title} ({q.question_type.value})", expanded=False):
-                    if q.id not in custom_priors:
-                        custom_priors[q.id] = {opt: int(100 / len(q.options)) for opt in q.options}
-                    
-                    o_cols = st.columns(min(3, len(q.options)))
-                    for idx, opt in enumerate(q.options):
-                        col = o_cols[idx % min(3, len(q.options))]
-                        with col:
-                            current_val = custom_priors[q.id].get(opt, 25)
-                            new_val = st.slider(f"`{opt[:25]}..` (%)", 0, 100, current_val, key=f"sld_{q.id}_{idx}")
-                            custom_priors[q.id][opt] = new_val
-        
-        st.session_state["custom_priors"] = custom_priors
-        
-        st.markdown("---")
-        st.markdown("#### 2. All-Day Temporal Scheduling & Concurrency Swarm Setup")
-        s_col1, s_col2 = st.columns(2)
-        with s_col1:
-            sched_count = st.number_input("Number of Submissions to Queue:", min_value=1, max_value=500, value=20)
-            sched_hours = st.slider("Campaign Time Horizon (Hours):", min_value=0.1, max_value=72.0, value=12.0, help="Span responses across hours or days.")
-        with s_col2:
-            apply_diurnal = st.checkbox("🌅 Apply Human Diurnal Activity Weighting", value=True, help="Surges traffic during lunch and evening peaks while remaining idle at night.")
-            max_swarm = st.slider("Swarm Concurrency (Worker Threads):", min_value=1, max_value=5, value=3, help="Number of parallel Playwright browser instances to spawn during traffic spikes.")
-
-        if st.button("🚀 Pre-Compute Dataset & Enqueue Scheduled Campaign", type="primary", width="stretch"):
-            with st.spinner("Synthesizing conditional dataset with custom option overrides..."):
-                gen_engine = AIGenerationEngine(provider="ollama")
-                batch_answers = gen_engine.generate_batch_campaign(
-                    schema=schema_obj,
-                    count=sched_count,
-                    context="Survey analysis with custom distribution overrides",
-                    apply_rebalancing=False
-                )
-                
-                # Apply custom percentages override to existing answers if matched
-                for ans_set in batch_answers:
-                    for ans_item in ans_set.answers:
-                        if ans_item.question_id in custom_priors and isinstance(custom_priors[ans_item.question_id], dict):
-                            p_dict = custom_priors[ans_item.question_id]
-                            opts = list(p_dict.keys())
-                            weights = [p_dict[o] for o in opts]
-                            if sum(weights) > 0:
-                                ans_item.value = random.choices(opts, weights=weights, k=1)[0]
-
-                timestamps = DiurnalTimestampGenerator.generate_schedule(
-                    count=sched_count,
-                    duration_hours=sched_hours,
-                    apply_diurnal_curve=apply_diurnal
-                )
-                
-                tasks_to_queue = []
-                for idx, ans_set in enumerate(batch_answers):
-                    t_task = ScheduledSubmissionTask(
-                        form_url=custom_url,
-                        scheduled_timestamp=timestamps[idx].isoformat(),
-                        answer_set_json=ans_set.model_dump_json(),
-                        status=ScheduleStatus.PENDING
-                    )
-                    tasks_to_queue.append(t_task)
-                
-                tracker.enqueue_scheduled_tasks(tasks_to_queue)
-                st.success(f"🎉 Successfully scheduled {sched_count} tasks across {sched_hours} hours in SQLite queue!")
+            except Exception as e:
+                logger.error(f"Execution Error: {str(e)}")
+                ui_error_report(f"❌ Execution Failure: {str(e)}")
 
     st.markdown("---")
-    st.markdown("### 📡 Live Scheduled Task Queue & Swarm Execution Monitor")
-    df_queue = tracker.get_schedule_queue_dataframe()
-    st.dataframe(df_queue, width="stretch")
-    
-    ex_col1, ex_col2 = st.columns([2, 1])
-    with ex_col1:
-        if st.button("⚡ Run Swarm Execution Step (Execute Due Tasks Now)", type="primary"):
-            due_tasks = tracker.get_due_scheduled_tasks(limit=15)
-            if not due_tasks:
-                st.info("ℹ️ No scheduled tasks are due at this moment.")
-            else:
-                st.markdown(f"**Deploying worker swarm for {len(due_tasks)} due tasks...**")
-                swarm_log_box = st.empty()
-                swarm_logs = []
-                def swarm_cb(m: str):
-                    swarm_logs.append(m)
-                    swarm_log_box.code("\n".join(swarm_logs[-10:]))
-                
-                pool = SwarmWorkerPool(max_workers=3, headless=False)
-                res = pool.execute_batch_concurrently(due_tasks, status_callback=swarm_cb)
-                for tid, (s, msg) in res.items():
-                    tracker.update_task_status(
-                        tid,
-                        ScheduleStatus.COMPLETED if s else ScheduleStatus.FAILED,
-                        error_message=None if s else msg
-                    )
-                st.success(f"⚡ Swarm execution cycle completed! Verified {sum(1 for v in res.values() if v[0])}/{len(due_tasks)} submissions.")
-    with ex_col2:
-        if st.button("🗑️ Clear All Pending Scheduled Tasks"):
-            tracker.clear_scheduled_tasks(status_filter=ScheduleStatus.PENDING.value)
-            st.warning("🧹 Pending tasks cleared from SQLite queue.")
+    st.markdown("#### 🕒 Persistent SQLite Scheduled Campaign Monitor")
+    df_q = tracker.get_schedule_queue_dataframe()
+    if not df_q.empty:
+        st.dataframe(df_q, width="stretch")
+        q_col1, q_col2 = st.columns([2, 1])
+        with q_col1:
+            if st.button("⚡ Run Swarm Execution Step (Execute Due Tasks Now)", key="exec_swarm_bt", type="primary"):
+                due = tracker.get_due_scheduled_tasks(limit=15)
+                if not due:
+                    st.info("No scheduled tasks due right now.")
+                else:
+                    pool = SwarmWorkerPool(max_workers=3, headless=False)
+                    res = pool.execute_batch_concurrently(due)
+                    for tid, (s, msg) in res.items():
+                        tracker.update_task_status(tid, ScheduleStatus.COMPLETED if s else ScheduleStatus.FAILED, error_message=None if s else msg)
+                    st.success(f"Swarm cycle completed ({len(due)} due tasks processed).")
+        with q_col2:
+            if st.button("🗑️ Clear Pending Scheduled Queue"):
+                tracker.clear_scheduled_tasks(status_filter=ScheduleStatus.PENDING.value)
+                st.warning("Pending tasks cleared from queue.")
+    else:
+        st.caption("No active scheduled tasks currently pending in SQLite queue.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 with tab_analytics:
