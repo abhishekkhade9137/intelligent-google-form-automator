@@ -17,6 +17,18 @@ class FormExtractor:
 
     def extract_schema(self, url: str) -> FormSchema:
         """Reads the current page and initializes the full FormSchema structure."""
+        # Detect closed surveys or institutional login barriers immediately
+        try:
+            body_text = self.page.locator("body").inner_text(timeout=4000).lower()
+            if "no longer accepting responses" in body_text or "not accepting responses" in body_text:
+                raise ValueError("This Google Form is closed and no longer accepting responses. Please open your Google Forms settings to re-enable 'Accepting responses' or provide an active survey link.")
+            if "you need permission" in body_text or "can only be viewed by users in the owner's organization" in body_text:
+                raise ValueError("This Google Form is restricted to verified organizational sign-ins. Please adjust Google Forms sharing permissions to public, or disable Headless Mode to perform manual browser authentication.")
+        except Exception as e:
+            if isinstance(e, ValueError):
+                raise e
+            # Ignore timeout if body is somehow unreadable and proceed to standard parsing
+
         title_el = self.page.locator("div[role='heading'] >> nth=0")
         title = title_el.inner_text().strip() if title_el.count() > 0 else "Google Form Survey"
         
